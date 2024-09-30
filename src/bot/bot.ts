@@ -1,6 +1,7 @@
 import { Telegraf } from "telegraf";
 import "dotenv/config";
 import loader from "./loader.js";
+import "../database/Appor.js";
 
 export const bot = new Telegraf(process.env.BOT_TOKEN);
 

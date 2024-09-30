@@ -12,7 +12,7 @@ export default (async function loadReq() {
             const pa = path.join(process.cwd(), 'dist/bot', i, file);
             await import(`.${i}/${file}`);
         });
-        logger.info(`${res} with ${i} Loaded!`);
+        logger.info(`Dir ${i} Loaded!`);
     }
     ;
 });

@@ -12,11 +12,3 @@ export declare global {
     }
 }
 
-export interface EconomyUserIncrementOptions {
-    value?: (number | bigint) = 0,
-}
-
-export interface EconomyUserValueAttributes {
-    userId: String;
-    value: (number | bigint) = 0;
-}

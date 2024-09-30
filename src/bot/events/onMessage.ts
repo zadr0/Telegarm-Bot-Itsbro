@@ -1,5 +1,5 @@
 import { bot } from "../bot.js";
-import { MessageOnUrl, MessageOnTeleGramUrl } from "../functions/verif.js";
+import { MessageOnUrl } from "../functions/verif.js";
 import logger from "../logger.js";
 
 bot.on("message", async (ctx) => {
@@ -9,7 +9,7 @@ bot.on("message", async (ctx) => {
 
     const Arr = MessageOnUrl(res);
 
-    if (Arr.length !== 0) {
+    if (!Arr.length) {
         logger.warn(`User: ${ctx.from.username} triggired from links:`, Arr)
         try { await ctx.deleteMessage(ctx.msgId) } catch(err) { logger.warn("Не удалось удалить сообщения от пользователя! Ошибка:", err) };
     };

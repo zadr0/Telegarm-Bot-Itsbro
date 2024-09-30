@@ -5,10 +5,14 @@ bot.on("message", async (ctx)=>{
     const res = ctx.text;
     if (!res) return;
     const Arr = MessageOnUrl(res);
-    logger.info(Arr);
-    if (Arr.length !== 0) {
-        await ctx.reply("это смерть");
-    } else {
-        await ctx.reply("живи");
+    if (!Arr.length) {
+        logger.warn(`User: ${ctx.from.username} triggired from links:`, Arr);
+        try {
+            await ctx.deleteMessage(ctx.msgId);
+        } catch (err) {
+            logger.warn("Не удалось удалить сообщения от пользователя! Ошибка:", err);
+        }
+        ;
     }
+    ;
 });
