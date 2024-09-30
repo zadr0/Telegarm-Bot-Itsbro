@@ -30,11 +30,19 @@ export var models;
         userId: {
             type: DataTypes.STRING(255)
         },
+        expired: {
+            type: DataTypes.STRING(255)
+        },
+        reason: {
+            type: DataTypes.STRING(255)
+        },
         punish: {
             type: DataTypes.STRING
         }
     });
 })(models || (models = {}));
 (async ()=>{
-    await admin.sync();
+    await admin.sync({
+        alter: true
+    });
 })();

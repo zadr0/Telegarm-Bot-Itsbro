@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, ModelStatic, Model } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import "dotenv/config";
 
 export const admin = new Sequelize(process.env.sql_DB, process.env.sql_user, process.env.sql_password, {
@@ -32,6 +32,12 @@ export namespace models {
         userId: {
             type: DataTypes.STRING(255),
         },
+        expired: {
+            type: DataTypes.STRING(255),
+        },
+        reason: {
+            type: DataTypes.STRING(255)
+        },
         punish: {
             type: DataTypes.STRING,
         },
@@ -39,7 +45,7 @@ export namespace models {
 };
 
 (async () => {
-    await admin.sync()
+    await admin.sync({ alter: true })
 })();
 
 

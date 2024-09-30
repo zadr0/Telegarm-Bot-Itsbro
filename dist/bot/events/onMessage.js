@@ -5,8 +5,8 @@ bot.on("message", async (ctx)=>{
     const res = ctx.text;
     if (!res) return;
     const Arr = MessageOnUrl(res);
-    const ss = (await bot.telegram.getChatMember(ctx.chat.id, ctx.from.id)).status;
-    if (!(ss in [
+    const status = (await bot.telegram.getChatMember(ctx.chat.id, ctx.from.id)).status;
+    if (!(status in [
         'creator',
         'administator'
     ]) && Arr.length) {
