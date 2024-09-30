@@ -37,6 +37,7 @@ export const SetFastAsset = (): FastAsset => {
 
             return user;
         };
+        
         async function SavePunish(id: string, punish: Punishes): Promise<Model<any, any>> {
             const pun = await models.ModModel.create({
                 userId: id,

@@ -5,7 +5,11 @@ bot.on("message", async (ctx)=>{
     const res = ctx.text;
     if (!res) return;
     const Arr = MessageOnUrl(res);
-    if (!Arr.length) {
+    const ss = (await bot.telegram.getChatMember(ctx.chat.id, ctx.from.id)).status;
+    if (!(ss in [
+        'creator',
+        'administator'
+    ]) && Arr.length) {
         logger.warn(`User: ${ctx.from.username} triggired from links:`, Arr);
         try {
             await ctx.deleteMessage(ctx.msgId);
