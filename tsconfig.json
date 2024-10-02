@@ -10,6 +10,8 @@
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "strict": true,
-        "incremental": true
+        "incremental": true,
+        "baseUrl": "types",
+        "typeRoots": ["types"]
     },
 }

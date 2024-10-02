@@ -1,38 +1,83 @@
 import { bot } from "../bot.js";
 import parseDuration from "../functions/parseTime.js";
+import { createCommand } from "../functions/loadEb.js"
 import logger from "../logger.js";
-import { DateTime } from "luxon";
 
-bot.command('warn', async (int) => {
+createCommand({
+    name: `warn`,
+    description: `кома`,
+    async execute(msg, argums) {
 
-    console.log(1);
+        if (!argums) {
+            await bot.sendMessage(msg.chat.id, `Не нашлось аргументов!`, {
+                reply_to_message_id: msg.message_id,
+            });
+            return;
+        };
 
-    const time = int.args[0];
-    const reason = ''
-    const target = int.msg.reply_to_message?.from;
+        if (!msg.from) {
+            await bot.sendMessage(msg.chat.id, `Вы кто?`, {
+                reply_to_message_id: msg.message_id,
+            });
+            return;
+        }
 
-    console.log(1);
+        var time: string | number = argums[0];
+        var target: any = msg.reply_to_message?.from;
+        var reason: string[] | string = argums.slice(1);
 
-    if (!time) return (await int.reply(`Неуказанное поле со временем: ${time} [ ARG #1 ]`));
-    if (!target) return (await int.reply(`Ответьте на сообщение пользователя!`));
-    if (target.is_bot) return (await int.reply(`Пользователь являеться ботом!`));
+        if (!time) {
+            await bot.sendMessage(msg.chat.id, `Ошибка аргумента времени!`, {
+                reply_to_message_id: msg.message_id,
+            });
+            return;
+        }
 
-    console.log(1);
+        if (!target) {
 
-    const msg = await int.reply(`Выполнение...`);
+            try {
 
-    const parse = DateTime.fromSeconds(Math.round(Date.now()/1000) + parseDuration(time)).toISO();
+                target = await bot.getChatMember(msg.chat.id, Number(argums[1]));
+                reason = argums.slice(2);
 
-    if (!parse || Number.isNaN(parse)) return (await int.reply(`Ошибка парсирования времени!`));
+            } catch (x: any) {
 
-    try {
-        const md = await qdb.ModAsset.SavePunish(target.id.toString(), parse, reason, 'warn');
-        logger.info(`Модератор: ${int.from.username} выдал предупреждение ${target.username} на: ${time}, по причине: ${reason}`)
+                if (x?.response?.statusCode === 400) {
+                    return await bot.sendMessage(msg.chat.id, `Не нашлось пользователя!`, {
+                        reply_to_message_id: msg.message_id,
+                    });
+                } else {
+                    logger.error(x);
+                    return;
+                };
 
-        await bot.telegram.editMessageText(msg.chat.id, msg.message_id, '', `#${md.getDataValue("EventId")} Пользователю ${target.username} успешно выдано предудупреждение на: ${time}, по причине: ${reason}`);
+            };
+        };
 
-    } catch (err) {
-        await int.reply(`Произошла ошибка при выдаче предупреждения!`);
-        logger.error(err);
-    };
-});
+        if (target.is_bot) {
+            await bot.sendMessage(msg.chat.id, `Пользователь являеться ботом!`, {
+                reply_to_message_id: msg.message_id,
+            });
+            return;
+        };
+
+        time = parseDuration(time);
+
+        if (!time || Number.isNaN(time)) {
+            await bot.sendMessage(msg.chat.id, `Ошибка парсивования времени!`, {
+                reply_to_message_id: msg.message_id,
+            });
+            return;
+        };
+
+        const parse = new Date();
+        parse.setSeconds(parse.getSeconds() + time);
+
+        const md = await qdb.ModAsset.SavePunish(target.id.toString(), parse.toISOString(), reason.join(' ') || "Причина не указана!", 'warn');
+        logger.info(`Модератор: ${msg.from.username} выдал предупреждение ${target.username} на: ${time}, по причине: ${reason.join(' ') || "Причина не указана!"}`)
+
+        await bot.sendMessage(msg.chat.id, `#${md.getDataValue("EventId")} Пользователю ${target.username} успешно выдано предудупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
+
+
+    },
+})

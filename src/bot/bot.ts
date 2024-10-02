@@ -1,12 +1,15 @@
-import { Telegraf } from "telegraf";
+import Teleg from "node-telegram-bot-api";
 import "dotenv/config";
 import loader from "./loader.js";
 import "../database/Appor.js";
+import schedule from "node-schedule";
 
-export const bot = new Telegraf(process.env.BOT_TOKEN);
+export const bot = new Teleg(process.env.BOT_TOKEN, {
+    polling: true
+});
 
 await loader();
-bot.launch();
 
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.on('SIGINT', () => {
+    schedule.gracefulShutdown().then(() => { process.exit(0) });
+});

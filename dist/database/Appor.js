@@ -1,4 +1,4 @@
-import { models } from "./sequalize.js";
+/* eslint-disable @typescript-eslint/no-explicit-any */ import { models } from "./sequalize.js";
 export const SetFastAsset = ()=>{
     const EconomyAsset = function() {
         async function getModal(id) {

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+/* eslint-disable @typescript-eslint/no-explicit-any */ import chalk from 'chalk';
 export var LogLevels;
 (function(LogLevels) {
     LogLevels[LogLevels["Debug"] = 0] = "Debug";

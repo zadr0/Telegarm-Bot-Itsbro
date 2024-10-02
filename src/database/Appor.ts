@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { models } from "./sequalize.js";
 import type { EconomyUserValueAttributes, EconomyUserIncrementOptions, edb, mdb, FastAsset, Punishes } from "../../types/DataTypes";
 import { Model } from "sequelize";

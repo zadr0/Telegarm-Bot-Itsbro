@@ -1,4 +1,5 @@
-import { Model } from "sequelize";
+import { Model, ModelStatic } from "sequelize";
+import { models } from "../src/database/sequalize";
 
 export interface EconomyUserIncrementOptions {
     value?: (number | bigint) = 0,
@@ -13,7 +14,6 @@ export interface edb {
     getModal: (id: string) => Promise<Model<any, any>>;
     getJSON: (id: string) => Promise<EconomyUserValueAttributes>;
     increment: ({ userId }: { userId: string}, opt: EconomyUserIncrementOptions) => Promise<Model<any, any>>;
-    
 }
 
 export type Punishes = 'mute' | 'ban' | 'warn';
@@ -21,6 +21,14 @@ export type Punishes = 'mute' | 'ban' | 'warn';
 export interface mdb {
     getModals: (id: string, options?: Punishes) => Promise<Model<any, any>[] | undefined>
     SavePunish: (id: string, expired: string, reason: string, punish: Punishes) => Promise<Model<any, any>>;
+}
+
+export interface EventPunish {
+    EventId: number;
+    userId: string;
+    expired: string;
+    reason: string;
+    punish: Punishes;
 }
 
 export interface FastAsset {

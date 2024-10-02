@@ -31,7 +31,7 @@ export var models;
             type: DataTypes.STRING(255)
         },
         expired: {
-            type: DataTypes.STRING(255)
+            type: DataTypes.DATE
         },
         reason: {
             type: DataTypes.STRING(255)
