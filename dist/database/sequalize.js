@@ -36,12 +36,15 @@ export var models;
         reason: {
             type: DataTypes.STRING(255)
         },
+        chatId: {
+            type: DataTypes.STRING(255)
+        },
         punish: {
             type: DataTypes.STRING
         }
     });
 })(models || (models = {}));
-(async ()=>{
+await (async ()=>{
     await admin.sync({
         alter: true
     });

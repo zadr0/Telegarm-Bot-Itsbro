@@ -13,7 +13,7 @@ export interface EconomyUserValueAttributes {
 export interface edb {
     getModal: (id: string) => Promise<Model<any, any>>;
     getJSON: (id: string) => Promise<EconomyUserValueAttributes>;
-    increment: ({ userId }: { userId: string}, opt: EconomyUserIncrementOptions) => Promise<Model<any, any>>;
+    increment: ({ userId }: { userId: string }, opt: EconomyUserIncrementOptions) => Promise<Model<any, any>>;
 }
 
 export type Punishes = 'mute' | 'ban' | 'warn';
@@ -29,7 +29,28 @@ export interface EventPunish {
     expired: string;
     reason: string;
     punish: Punishes;
+    chatId: string;
+};
+
+export type condition = {
+    "warn": {
+        3: {
+            time: number,
+            reset: boolean,
+        },
+        7: {
+            time: number,
+            reset: boolean,
+        },
+    },
+    "mute": {
+        3: number,
+        5: number,
+        7: number,
+        10: number,
+    },
 }
+
 
 export interface FastAsset {
     EconomyAsset: edb,

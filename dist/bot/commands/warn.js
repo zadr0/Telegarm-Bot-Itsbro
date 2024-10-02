@@ -2,6 +2,7 @@ import { bot } from "../bot.js";
 import parseDuration from "../functions/parseTime.js";
 import { createCommand } from "../functions/loadEb.js";
 import logger from "../logger.js";
+import { PunishManager } from "../task/UpdatePunish.js";
 createCommand({
     name: `warn`,
     description: `кома`,
@@ -19,6 +20,7 @@ createCommand({
             });
             return;
         }
+        ;
         var time = argums[0];
         var target = msg.reply_to_message?.from;
         var reason = argums.slice(1);
@@ -28,9 +30,10 @@ createCommand({
             });
             return;
         }
+        ;
         if (!target) {
             try {
-                target = await bot.getChatMember(msg.chat.id, Number(argums[1]));
+                target = (await bot.getChatMember(msg.chat.id, Number(argums[1]))).user;
                 reason = argums.slice(2);
             } catch (x) {
                 if (x?.response?.statusCode === 400) {
@@ -62,9 +65,8 @@ createCommand({
         }
         ;
         const parse = new Date();
-        parse.setSeconds(Math.round(Date.now() / 1000) + time);
-        const md = await qdb.ModAsset.SavePunish(target.id.toString(), parse.toISOString(), reason.join(' ') || "Причина не указана!", 'warn');
-        logger.info(`Модератор: ${msg.from.username} выдал предупреждение ${target.username} на: ${time}, по причине: ${reason.join(' ') || "Причина не указана!"}`);
-        await bot.sendMessage(msg.chat.id, `#${md.getDataValue("EventId")} Пользователю ${target.username} успешно выдано предудупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
+        parse.setSeconds(time);
+        const md = await PunishManager.WarnUser(msg.from.id, msg.chat.id, parse, reason.join(' '));
+        await bot.sendMessage(msg.chat.id, `#${md.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
     }
 });

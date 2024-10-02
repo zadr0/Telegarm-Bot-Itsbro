@@ -38,13 +38,16 @@ export namespace models {
         reason: {
             type: DataTypes.STRING(255)
         },
+        chatId: {
+            type: DataTypes.STRING(255)
+        },
         punish: {
             type: DataTypes.STRING,
         },
     });
 };
 
-(async () => {
+await (async () => {
     await admin.sync({ alter: true })
 })();
 
