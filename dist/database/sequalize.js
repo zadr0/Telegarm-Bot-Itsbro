@@ -40,12 +40,12 @@ export var models;
             type: DataTypes.STRING(255)
         },
         punish: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING(255)
         }
     });
 })(models || (models = {}));
 await (async ()=>{
     await admin.sync({
-        alter: true
+        force: true
     });
 })();

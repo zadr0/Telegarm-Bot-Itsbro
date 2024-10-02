@@ -51,12 +51,7 @@ export type condition = {
     },
 }
 
-
 export interface FastAsset {
     EconomyAsset: edb,
     ModAsset: mdb,
-}
-
-export declare global {
-    var qdb: FastAsset;
 }

@@ -1,7 +1,6 @@
 import Teleg from "node-telegram-bot-api";
 import "dotenv/config";
 import loader from "./loader.js";
-import "../database/Appor.js";
 import schedule from "node-schedule";
 import { PunishManager } from "./task/UpdatePunish.js";
 

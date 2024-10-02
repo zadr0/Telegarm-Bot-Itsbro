@@ -77,7 +77,7 @@ createCommand({
 
         const md = await PunishManager.WarnUser(msg.from.id, msg.chat.id, parse, reason.join(' '));
 
-        await bot.sendMessage(msg.chat.id, `#${md.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
+        await bot.sendMessage(msg.chat.id, `${md?.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
 
     },
 })

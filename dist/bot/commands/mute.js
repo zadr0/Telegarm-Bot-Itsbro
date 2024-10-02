@@ -4,8 +4,8 @@ import { createCommand } from "../functions/loadEb.js";
 import logger from "../logger.js";
 import { PunishManager } from "../task/UpdatePunish.js";
 createCommand({
-    name: `warn`,
-    description: `кома`,
+    name: `mute`,
+    description: ``,
     async execute (msg, argums) {
         if (!argums) {
             await bot.sendMessage(msg.chat.id, `Не нашлось аргументов!`, {
@@ -64,9 +64,16 @@ createCommand({
             return;
         }
         ;
-        const parse = new Date();
-        parse.setSeconds(time);
-        const md = await PunishManager.WarnUser(msg.from.id, msg.chat.id, parse, reason.join(' '));
-        await bot.sendMessage(msg.chat.id, `${md?.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${reason.join(' ') || "Причина не указана!"}`);
+        const res = await PunishManager.MuteUser(target.id, msg.chat.id, time, reason.join(' '));
+        if (!res) {
+            await bot.sendMessage(msg.chat.id, `Произошла ошибка при выдаче мута!`, {
+                reply_to_message_id: msg.message_id
+            });
+            return;
+        }
+        ;
+        await bot.sendMessage(msg.chat.id, `#${res.EventId} Пользователь был замьючен на: ${time}sec, по причине: ${res.reason}`, {
+            reply_to_message_id: msg.message_id
+        });
     }
 });

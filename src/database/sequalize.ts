@@ -42,13 +42,13 @@ export namespace models {
             type: DataTypes.STRING(255)
         },
         punish: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
         },
     });
 };
 
 await (async () => {
-    await admin.sync({ alter: true })
+    await admin.sync({ force: true })
 })();
 
 

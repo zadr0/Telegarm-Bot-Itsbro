@@ -22,36 +22,117 @@ export var PunishManager;
     }
     PunishManager.scheduleMute = scheduleMute;
     async function UnmuteUser(id, chatId, reason = 'system') {
-        await bot.restrictChatMember(chatId, id, {
-            can_send_messages: true
-        });
-        logger.info(`Пользователь: ${id} был размучен по причине: ${reason}`);
+        try {
+            await bot.restrictChatMember(chatId, id, {
+                can_send_messages: true
+            });
+            PunishManager.jobs.delete(id.toString());
+            logger.info(`Пользователь: ${id} был размучен по причине: ${reason}`);
+        } catch (x) {
+            switch(x?.response?.statusCode){
+                case 400:
+                    PunishManager.jobs.delete(id.toString());
+                    break;
+                default:
+                    logger.error(x);
+                    break;
+            }
+        }
+        ;
     }
     PunishManager.UnmuteUser = UnmuteUser;
+    async function GetPunishes(id) {
+        try {
+            const mds = await models.ModModel.findAll({
+                where: {
+                    userId: id
+                }
+            });
+            return mds;
+        } catch (x) {
+            logger.error(x);
+        }
+    }
+    PunishManager.GetPunishes = GetPunishes;
+    async function ClearWarn(id) {
+        try {
+            const res = await models.ModModel.destroy({
+                where: {
+                    EventId: id
+                }
+            });
+            return res;
+        } catch (x) {
+            logger.error(x);
+        }
+    }
+    PunishManager.ClearWarn = ClearWarn;
     async function MuteUser(id, chatId, time, reason = 'причина не указана') {
-        await bot.restrictChatMember(chatId, id, {
-            can_send_messages: false
-        });
-        const parse = new Date();
-        parse.setSeconds(time);
-        await qdb.ModAsset.SavePunish(id.toString(), parse.toISOString(), reason, 'mute');
-        logger.info(`Пользователь: ${id} был замучен по причине: ${reason}`);
+        try {
+            await bot.restrictChatMember(chatId, id, {
+                can_send_messages: false
+            });
+            const parse = new Date();
+            parse.setSeconds(time);
+            const md = await models.ModModel.create({
+                userId: id,
+                expired: time,
+                punish: 'mute',
+                chatId: chatId,
+                reason: reason
+            });
+            const res = await SaveCondition(id, 'mute', chatId);
+            if (!res) {
+                if (PunishManager.jobs.has(id.toString())) return;
+                const job = schedule.scheduleJob(md.expired, ()=>UnmuteUser(id, chatId));
+                PunishManager.jobs.set(id.toString(), job);
+            }
+            ;
+            logger.info(`Пользователь: ${id} был замучен по причине: ${reason}`);
+            return md;
+        } catch (x) {
+            switch(x?.response?.statusCode){
+                case 400:
+                    logger.warn(`Чат не являеться супергруппой!`);
+                    break;
+                default:
+                    logger.error(x);
+                    break;
+            }
+            ;
+        }
     }
     PunishManager.MuteUser = MuteUser;
     async function BanUser(id, chatId, until, reason = 'причина не указана') {
-        await bot.banChatMember(chatId, id, {
-            until_date: until
-        });
-        logger.info(`Пользователь: ${id} был забанен по причине: ${reason}`);
+        try {
+            await bot.banChatMember(chatId, id, {
+                until_date: until
+            });
+            logger.info(`Пользователь: ${id} был забанен по причине: ${reason}`);
+        } catch (x) {
+            switch(x?.response?.statusCode){
+                case 400:
+                    logger.warn(`Чат не являеться группой!`);
+                    break;
+                default:
+                    logger.error(x);
+                    break;
+            }
+            ;
+        }
+        ;
     }
     PunishManager.BanUser = BanUser;
     async function WarnUser(id, chatId, time, reason = 'причина не указана') {
+        logger.info(`Пользователь: ${id} получил предупреждение по причине: ${reason}`);
         const md = await models.ModModel.create({
             userId: id,
             expired: time,
             punish: 'warn',
-            chatId: chatId
+            chatId: chatId,
+            reason: reason
         });
+        const res = await SaveCondition(id, 'warn', chatId);
         return md;
     }
     PunishManager.WarnUser = WarnUser;
@@ -68,42 +149,47 @@ export var PunishManager;
         });
         switch(where){
             case "warn":
-                const summaryWarns = reduxWarns(summary?.length);
+                const summaryWarns = await reduxWarns(summary?.length);
                 for(const condition in conditions){
                     if (Number(condition) !== summaryWarns) continue;
                     const c = conditions[summaryWarns];
                     await MuteUser(id, chatId, c.time, `#${summaryWarns} предупреждение`);
+                    c.reset && await ResetWarns(id);
+                    return true;
                 }
                 ;
-                break;
+                return false;
             case "mute":
                 var until_date = Date.now();
-                const summaryMutes = reduxMutes(summary?.length);
+                const summaryMutes = await reduxMutes(summary?.length);
                 for(const condition in conditions){
                     if (Number(condition) !== summaryMutes) continue;
                     const c = conditions[summaryMutes];
                     await BanUser(id, chatId, until_date + c, `#${summaryMutes} мутов`);
+                    return true;
                 }
                 ;
-                break;
+                return false;
             default:
-                return;
+                return false;
         }
         ;
     }
     PunishManager.SaveCondition = SaveCondition;
+    async function ResetWarns(id) {}
+    PunishManager.ResetWarns = ResetWarns;
 })(PunishManager || (PunishManager = {}));
-function reduxWarns(num) {
+async function reduxWarns(num) {
     let res = num;
-    while(num > 7){
-        num -= 7;
+    while(res > 7){
+        res -= 7;
     }
     ;
     return res;
 }
-function reduxMutes(num) {
+async function reduxMutes(num) {
     let res = num;
-    while(num > 10){
+    while(res > 10){
         res -= 10;
     }
     ;
