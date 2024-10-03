@@ -17,5 +17,6 @@ export declare global {
 export interface Command {
     name: string,
     description: string = '_';
+    moderation?: boolean = false;
     execute: (msg: TelegramBot.Message, args: string[] | undefined) => any | unknown;
 }

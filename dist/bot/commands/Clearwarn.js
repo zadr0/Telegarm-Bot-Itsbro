@@ -2,8 +2,9 @@ import { bot } from "../bot.js";
 import { createCommand } from "../functions/loadEb.js";
 import { PunishManager } from "../task/UpdatePunish.js";
 createCommand({
-    name: `mute`,
+    name: `remove_warn`,
     description: ``,
+    moderation: true,
     async execute (msg, argums) {
         if (!argums) {
             await bot.sendMessage(msg.chat.id, `Не нашлось аргументов!`, {

@@ -4,10 +4,10 @@ import { createCommand } from "../functions/loadEb.js"
 import logger from "../logger.js";
 import { PunishManager } from "../task/UpdatePunish.js";
 import Tg from "node-telegram-bot-api"
-
+import { models } from "../../database/sequalize.js";
 createCommand({
-    name: `warn`,
-    description: `кома`,
+    name: `unmute`,
+    description: ``,
     moderation: true,
     async execute(msg, argums) {
 
@@ -25,6 +25,7 @@ createCommand({
             return;
         };
 
+
         var time: string | number = argums[0];
         var target: Tg.User | undefined = msg.reply_to_message?.from;
         var reason: string[] = argums.slice(1);
@@ -40,8 +41,16 @@ createCommand({
 
             try {
 
-                target = (await bot.getChatMember(msg.chat.id, Number(argums[1]))).user;
+                const member = (await bot.getChatMember(msg.chat.id, Number(argums[1])));
                 reason = argums.slice(2);
+
+                if (member.can_send_messages) {
+                    return await bot.sendMessage(msg.chat.id, `Пользователь не в муте!`, {
+                        reply_to_message_id: msg.message_id,
+                    });
+                };
+
+                target = member.user;
 
             } catch (x: any) {
 
@@ -64,6 +73,7 @@ createCommand({
             return;
         };
 
+
         time = parseDuration(time);
 
         if (!time || Number.isNaN(time)) {
@@ -73,13 +83,8 @@ createCommand({
             return;
         };
 
-        const parse = new Date();
-        parse.setSeconds(time);
+        const res = await PunishManager.UnmuteUser(target.id, msg.chat.id, reason.join(' '));
 
-        const strReason = reason.join(' ') || "Причина не указана";
-        const md = await PunishManager.WarnUser(msg.from.id, msg.chat.id, parse, strReason);
-
-        await bot.sendMessage(msg.chat.id, `#${md?.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${strReason}`);
-
+        await bot.sendMessage(msg.chat.id, ` Пользователь был размьючен на по причине: ${reason.join(' ')}`);
     },
-})
+});

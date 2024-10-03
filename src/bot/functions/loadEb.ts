@@ -1,7 +1,7 @@
 import { Command } from "../../../types/types";
 
-export const commands = new Map<string, Command['execute']>();
+export const commands = new Map<string, { ex: Command['execute'], mod?: boolean}>();
 
 export function createCommand(cmd: Command): void {
-    commands.set(cmd.name, cmd.execute.bind(cmd));
+    commands.set(cmd.name, { ex: cmd.execute.bind(cmd), mod: cmd.moderation || false});
 };

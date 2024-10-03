@@ -6,8 +6,9 @@ import { PunishManager } from "../task/UpdatePunish.js";
 import Tg from "node-telegram-bot-api"
 
 createCommand({
-    name: `mute`,
+    name: `remove_warn`,
     description: ``,
+    moderation: true,
     async execute(msg, argums) {
         if (!argums) {
             await bot.sendMessage(msg.chat.id, `Не нашлось аргументов!`, {
@@ -15,7 +16,7 @@ createCommand({
             });
             return;
         };
-        
+
         if (!msg.from) {
             await bot.sendMessage(msg.chat.id, `Вы кто?`, {
                 reply_to_message_id: msg.message_id,
@@ -43,7 +44,6 @@ createCommand({
 
         await bot.sendMessage(msg.chat.id, `Предупреждение #${id} было успешно снято!`, {
             reply_to_message_id: msg.message_id,
-        });
-
-    },
+        })
+    }
 })

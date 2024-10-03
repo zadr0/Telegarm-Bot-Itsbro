@@ -26,6 +26,19 @@ export var PunishManager;
             await bot.restrictChatMember(chatId, id, {
                 can_send_messages: true
             });
+            const res = await models.ModModel.findOne({
+                where: {
+                    userId: id,
+                    punish: 'mute',
+                    expired: {
+                        [Op.gt]: Date.now()
+                    }
+                }
+            });
+            if (res) {
+                await res.destroy();
+            }
+            ;
             PunishManager.jobs.delete(id.toString());
             logger.info(`Пользователь: ${id} был размучен по причине: ${reason}`);
         } catch (x) {

@@ -9,6 +9,7 @@ import Tg from "node-telegram-bot-api";
 createCommand({
     name: `mod_log`,
     description: ``,
+    moderation: true,
     async execute(msg, argums) {
         if (!msg.from) {
             await bot.sendMessage(msg.chat.id, `Вы кто?`, {
@@ -59,8 +60,8 @@ createCommand({
         const warns = punishes.filter(push => push.punish === 'warn');
         const mutes = punishes.filter(push => push.punish === 'mute');
 
-        var warnsString = warns.length > 0 ? `${warns.length} - Предупреждения \n\n` + warns.map( (warn, index) => `${index + 1} - ${warn.reason} \n - EventId: ${warn.EventId}`).join('\n') : 'Предупреждений не нашлось!';
-        var mutesString = mutes.length > 0 ? `${mutes.length} - Муты \n\n` + mutes.map( (mute, index) => `${index + 1} - ${mute.reason} \n - EventId: ${mute.EventId}`).join('\n') : 'Мутов не нашлось!';
+        var warnsString = warns.length > 0 ? `${warns.length} - Предупреждения \n\n` + warns.map( (warn, index) => `${index + 1} - Предупреждение \n- EventId: ${warn.EventId} \n- Причина: ${warn.reason}`).join('\n') : 'Предупреждений не нашлось!';
+        var mutesString = mutes.length > 0 ? `${mutes.length} - Муты \n\n` + mutes.map( (mute, index) => `${index + 1} - Мут \n- EventId: ${mute.EventId}\n- Причина: ${mute.reason} `).join('\n') : 'Мутов не нашлось!';
 
         await bot.sendMessage(msg.chat.id, warnsString + '\n\n' + mutesString, {
             reply_to_message_id: msg.message_id,

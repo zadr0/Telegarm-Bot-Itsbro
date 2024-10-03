@@ -6,6 +6,7 @@ import { PunishManager } from "../task/UpdatePunish.js";
 createCommand({
     name: `mute`,
     description: ``,
+    moderation: true,
     async execute (msg, argums) {
         if (!argums) {
             await bot.sendMessage(msg.chat.id, `Не нашлось аргументов!`, {
@@ -33,8 +34,15 @@ createCommand({
         ;
         if (!target) {
             try {
-                target = (await bot.getChatMember(msg.chat.id, Number(argums[1]))).user;
+                const member = await bot.getChatMember(msg.chat.id, Number(argums[1]));
                 reason = argums.slice(2);
+                if (!member.can_send_messages) {
+                    return await bot.sendMessage(msg.chat.id, `Пользователь уже в муте!`, {
+                        reply_to_message_id: msg.message_id
+                    });
+                }
+                ;
+                target = member.user;
             } catch (x) {
                 if (x?.response?.statusCode === 400) {
                     return await bot.sendMessage(msg.chat.id, `Не нашлось пользователя!`, {
