@@ -23,7 +23,7 @@ createCommand({
             return;
         };
 
-        var time: string | number = argums[0];
+        var time: any = argums[0];
         var target: Tg.User | undefined = msg.reply_to_message?.from;
         var reason: string[] = argums.slice(1);
 
@@ -71,7 +71,7 @@ createCommand({
         };
 
         time = parseDuration(time);
-
+        
         if (!time || Number.isNaN(time)) {
             await bot.sendMessage(msg.chat.id, `Ошибка парсивования времени!`, {
                 reply_to_message_id: msg.message_id,
@@ -82,15 +82,13 @@ createCommand({
         const res = await PunishManager.MuteUser(target.id, msg.chat.id, time, reason.join(' '));
 
         if (!res) {
-            await bot.sendMessage(msg.chat.id, `Произошла ошибка при выдаче мута!`, {
-                reply_to_message_id: msg.message_id,
-            });
+            await bot.sendMessage(msg.chat.id, `Произошла ошибка при выдаче мута!`);
             return;
         };
 
         await bot.sendMessage(msg.chat.id, `#${res.EventId} Пользователь был замьючен на: ${time}sec, по причине: ${res.reason}`, {
             reply_to_message_id: msg.message_id,
-        });
+        })
     },
 })
 

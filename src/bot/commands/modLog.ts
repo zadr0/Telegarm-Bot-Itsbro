@@ -57,6 +57,7 @@ createCommand({
             return;
         }
 
+        
         const warns = punishes.filter(push => push.punish === 'warn');
         const mutes = punishes.filter(push => push.punish === 'mute');
 

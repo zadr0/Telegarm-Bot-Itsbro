@@ -34,11 +34,11 @@ export namespace PunishManager {
                 where: {
                     userId: id,
                     punish: 'mute',
-                    expired: { [Op.gt]: Date.now()},
+                    expired: { [Op.gt]: Date.now() },
                 }
             })
 
-            if (res) { await res.destroy( ) };
+            if (res) { await res.destroy() };
 
             jobs.delete(id.toString());
             logger.info(`Пользователь: ${id} был размучен по причине: ${reason}`);
@@ -67,19 +67,21 @@ export namespace PunishManager {
 
             return mds;
 
-        } catch(x: any) {
+        } catch (x: any) {
             logger.error(x);
         }
     }
-    
+
     export async function ClearWarn(id: number): Promise<number | undefined> {
         try {
-            const res = await models.ModModel.destroy({ where: {
-                EventId: id,
-            }});
+            const res = await models.ModModel.destroy({
+                where: {
+                    EventId: id,
+                }
+            });
 
             return res;
-        } catch(x) {
+        } catch (x) {
             logger.error(x);
         }
     }
@@ -91,11 +93,11 @@ export namespace PunishManager {
             });
 
             const parse = new Date();
-            parse.setSeconds(time);
+            parse.setSeconds(parse.getSeconds() + time);
 
             const md = await models.ModModel.create({
                 userId: id,
-                expired: time,
+                expired: parse,
                 punish: 'mute',
                 chatId: chatId,
                 reason: reason,
@@ -104,7 +106,7 @@ export namespace PunishManager {
             const res = await SaveCondition(id, 'mute', chatId);
 
             if (!res) {
-                if (jobs.has(id.toString())) return;
+                if (jobs.has(id.toString())) return; 
                 const job = schedule.scheduleJob(md.expired, () => UnmuteUser(id, chatId));
                 jobs.set(id.toString(), job);
             };
@@ -118,7 +120,7 @@ export namespace PunishManager {
 
             switch (x?.response?.statusCode) {
                 case 400:
-                    logger.warn(`Чат не являеться супергруппой!`)
+                    logger.warn(`Не получилось замутить указанного участника!`);
                     break;
                 default:
                     logger.error(x);
@@ -181,6 +183,8 @@ export namespace PunishManager {
 
                 for (const condition in conditions) {
                     if (Number(condition) as 3 | 7 !== summaryWarns) continue;
+
+
 
                     const c = (conditions as condition['warn'])[summaryWarns];
                     await MuteUser(id, chatId, c.time, `#${summaryWarns} предупреждение`);

@@ -66,9 +66,11 @@ createCommand({
         }
         ;
         const parse = new Date();
-        parse.setSeconds(time);
+        parse.setSeconds(parse.getSeconds() + time);
         const strReason = reason.join(' ') || "Причина не указана";
-        const md = await PunishManager.WarnUser(msg.from.id, msg.chat.id, parse, strReason);
-        await bot.sendMessage(msg.chat.id, `#${md?.EventId} Пользователю @${target.username} успешно выдано предупреждение на: ${time} sec, по причине: ${strReason}`);
+        const md = await PunishManager.WarnUser(target.id, msg.chat.id, parse, strReason);
+        await bot.sendMessage(msg.chat.id, `#${md?.EventId} Пользователю @${target?.username} успешно выдано предупреждение на: ${time} sec, по причине: ${strReason}`, {
+            reply_to_message_id: msg.message_id
+        });
     }
 });

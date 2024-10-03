@@ -86,10 +86,10 @@ export var PunishManager;
                 can_send_messages: false
             });
             const parse = new Date();
-            parse.setSeconds(time);
+            parse.setSeconds(parse.getSeconds() + time);
             const md = await models.ModModel.create({
                 userId: id,
-                expired: time,
+                expired: parse,
                 punish: 'mute',
                 chatId: chatId,
                 reason: reason
@@ -106,7 +106,7 @@ export var PunishManager;
         } catch (x) {
             switch(x?.response?.statusCode){
                 case 400:
-                    logger.warn(`Чат не являеться супергруппой!`);
+                    logger.warn(`Не получилось замутить указанного участника!`);
                     break;
                 default:
                     logger.error(x);

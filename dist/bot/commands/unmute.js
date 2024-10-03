@@ -1,5 +1,4 @@
 import { bot } from "../bot.js";
-import parseDuration from "../functions/parseTime.js";
 import { createCommand } from "../functions/loadEb.js";
 import logger from "../logger.js";
 import { PunishManager } from "../task/UpdatePunish.js";
@@ -22,20 +21,11 @@ createCommand({
             return;
         }
         ;
-        var time = argums[0];
         var target = msg.reply_to_message?.from;
-        var reason = argums.slice(1);
-        if (!time) {
-            await bot.sendMessage(msg.chat.id, `Ошибка аргумента времени!`, {
-                reply_to_message_id: msg.message_id
-            });
-            return;
-        }
-        ;
+        var reason = argums.slice(0);
         if (!target) {
             try {
-                const member = await bot.getChatMember(msg.chat.id, Number(argums[1]));
-                reason = argums.slice(2);
+                const member = await bot.getChatMember(msg.chat.id, Number(argums[0]));
                 if (member.can_send_messages) {
                     return await bot.sendMessage(msg.chat.id, `Пользователь не в муте!`, {
                         reply_to_message_id: msg.message_id
@@ -43,6 +33,7 @@ createCommand({
                 }
                 ;
                 target = member.user;
+                reason = argums.slice(1);
             } catch (x) {
                 if (x?.response?.statusCode === 400) {
                     return await bot.sendMessage(msg.chat.id, `Не нашлось пользователя!`, {
@@ -64,15 +55,10 @@ createCommand({
             return;
         }
         ;
-        time = parseDuration(time);
-        if (!time || Number.isNaN(time)) {
-            await bot.sendMessage(msg.chat.id, `Ошибка парсивования времени!`, {
-                reply_to_message_id: msg.message_id
-            });
-            return;
-        }
-        ;
-        const res = await PunishManager.UnmuteUser(target.id, msg.chat.id, reason.join(' '));
-        await bot.sendMessage(msg.chat.id, ` Пользователь был размьючен на по причине: ${reason.join(' ')}`);
+        const strReason = reason.join(' ') || "Причина не указана";
+        const res = await PunishManager.UnmuteUser(target.id, msg.chat.id, strReason);
+        await bot.sendMessage(msg.chat.id, ` Пользователь был размьючен на по причине: ${strReason}`, {
+            reply_to_message_id: msg.message_id
+        });
     }
 });

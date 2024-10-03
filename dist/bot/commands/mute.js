@@ -74,9 +74,7 @@ createCommand({
         ;
         const res = await PunishManager.MuteUser(target.id, msg.chat.id, time, reason.join(' '));
         if (!res) {
-            await bot.sendMessage(msg.chat.id, `Произошла ошибка при выдаче мута!`, {
-                reply_to_message_id: msg.message_id
-            });
+            await bot.sendMessage(msg.chat.id, `Произошла ошибка при выдаче мута!`);
             return;
         }
         ;
